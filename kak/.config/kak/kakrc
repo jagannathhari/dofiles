@@ -1,0 +1,152 @@
+eval %sh{kak-lsp}
+lsp-enable
+cursorline 
+evaluate-commands %sh{ hop-kak --init }
+hook global WinCreate .* %{
+	add-highlighter window/number-lines number-lines -separator ""  -relative
+}
+
+colorscheme gruvbox-dark
+add-highlighter global/  show-matching
+set-face global MatchingChar bright-red,default+bf
+set-option global autocomplete prompt
+
+#https://github.com/mawww/kakoune/wiki/IDE
+def ide %{
+    rename-client main
+    set global jumpclient main
+
+    new rename-client tools
+    set global toolsclient tools
+
+    # new rename-client docs
+    # set global docsclient docs
+}
+#indentation
+
+# https://github.com/mawww/kakoune/wiki/Indentation-and-Tabulation
+# except for Makefile
+
+hook global WinSetOption filetype=(?!makefile).* %{
+  map global insert <tab> '<a-;><a-gt>'
+  map global insert <s-tab> '<a-;><a-lt>'
+}
+
+
+hook global InsertChar \t %{ try %{
+  execute-keys -draft "h<a-h><a-k>\A\h+\z<ret><a-;>;%opt{indentwidth}@"
+}}
+
+
+hook global InsertDelete ' ' %{ try %{
+  execute-keys -draft 'h<a-h><a-k>\A\h+\z<ret>i<space><esc><lt>'
+}}
+
+
+# unselect on <esc>
+map global normal <esc> ";,"
+
+set-option global ui_options terminal_assistant=none
+
+
+hook global RegisterModified '"' %{ nop %sh{
+  printf %s "$kak_main_reg_dquote" | xsel --input --clipboard
+}}
+
+map global normal D '<a-l>d'
+
+map global normal p '!xsel --output --clipboard<ret>'
+
+map global normal P '<a-!>xsel --output --clipboard<ret>'
+
+
+#disable startup message
+set global startup_info_version 20240518
+map global normal R '|xsel --output --clipboard<ret>'
+
+map global user p ':buffer-previous<ret>'
+map global user n ':buffer-next<ret>'
+map global user d ':db<ret>' -docstring 'Delete buffer'
+
+map global user f ':rofi-files<ret>' -docstring 'search file in current dir'
+map global user b ':rofi-buffers<ret>' -docstring 'search buffer'
+
+# https://github.com/mawww/kakoune/wiki/Selections
+map global user s '*%s<ret>' -docstring 'select all selection'
+map global user a '%' -docstring 'select all buffer'
+map global user r ":repl-send-text<ret>"
+
+map global normal '#' :comment-line<ret>
+
+set-option global windowing_modules 'x11'
+
+nop %sh{
+    mkdir -p "$kak_config/autoload"
+    [ ! -L "$kak_config/autoload/standard-library" ] && ln -s "$kak_runtime/rc" "$kak_config/autoload/standard-library"
+}
+define-command rofi-buffers \
+-docstring 'Select an open buffer using Rofi' %{ evaluate-commands %sh{
+    BUFFER=$(printf "%s\n" "${kak_buflist}" | tr " " "\n" | rofi -dmenu -theme "gruvbox-dark" | tr -d \')
+    if [ -n "$BUFFER" ]; then
+        printf "%s\n" "buffer ${BUFFER}"
+    fi
+}}
+
+
+define-command rofi-files \
+-docstring 'Select files in project using Ag and Rofi' %{nop %sh{
+    FILE=$(ag -g "" | rofi -dmenu -theme "gruvbox-dark")
+    if [ -n "$FILE" ]; then
+        printf 'eval -client %%{%s} edit %%{%s}\n' "${kak_client}" "${FILE}" | kak -p "${kak_session}"
+    fi
+} }
+
+
+def camelcase %{
+    exec '`s[-_<space>]<ret>d~<a-i>w'
+}
+
+def snakecase %{
+  exec '<a-:><a-;>s-|[a-z][A-Z]<ret>;a<space><esc>s[-\s]+<ret>c_<esc><a-i>w`'
+}
+
+
+# https://crates.io./crates/hop-kak#workflow-examples
+map global normal <a-%> ':execute-keys gtGbx<ret>'
+declare-option str hop_kak_keyset 'asdfghjklqwertyuiopzxcvbnm'
+
+define-command hop-kak %{
+  eval -no-hooks -- %sh{ hop-kak --keyset "$kak_opt_hop_kak_keyset" --sels "$kak_selections_desc" }
+}
+
+define-command -override hop-kak-words %{
+  exec 'gtGbxs\w+<ret>:eval -no-hooks -- %sh{ hop-kak --keyset "$kak_opt_hop_kak_keyset" --sels "$kak_selections_desc" }<ret>'
+}
+
+# https://github.com/kakoune-lsp/kakoune-lsp#configure-mappings
+map global user l %{:enter-user-mode lsp<ret>} -docstring "LSP mode"
+
+map global insert <c-l> '<a-;>:try lsp-snippets-select-next-placeholders catch %{ execute-keys -with-hooks <lt>tab> }<ret>' -docstring 'Select next snippet placeholder'
+
+map global object a '<a-semicolon>lsp-object<ret>' -docstring 'LSP any symbol'
+map global object <a-a> '<a-semicolon>lsp-object<ret>' -docstring 'LSP any symbol'
+map global object f '<a-semicolon>lsp-object Function Method<ret>' -docstring 'LSP function or method'
+map global object t '<a-semicolon>lsp-object Class Interface Struct<ret>' -docstring 'LSP class interface or struct'
+map global object d '<a-semicolon>lsp-diagnostic-object --include-warnings<ret>' -docstring 'LSP errors and warnings'
+map global object D '<a-semicolon>lsp-diagnostic-object<ret>' -docstring 'LSP errors'
+
+map global user e :hop-kak-words<ret>
+
+decl str buffer_to_jump "NONE"
+
+define-command jn %{
+    jump-next %reg{a}
+}
+
+map global user j ":jn<ret>"
+set global grepcmd 'rg --vimgrep'
+
+hook global WinDisplay \*(?:callees|callers|diagnostics|goto|find|grep|implementations|lint-output|references|symbols)\*(?:-\d+)? %{
+    set-register a %val{bufname}
+
+}
