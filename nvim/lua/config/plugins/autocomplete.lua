@@ -56,7 +56,15 @@ return { -- Autocompletion
             -- No, but seriously. Please read `:help ins-completion`, it is really good!
             mapping = cmp.mapping.preset.insert {
                 -- Select the [n]ext item
-                ['<C-n>'] = cmp.mapping.select_next_item(),
+                -- ['<C-n>'] = cmp.mapping.select_next_item(),
+
+                ['<C-n>'] = cmp.mapping(function(fallback)
+                  if cmp.visible() then
+                    cmp.select_next_item()
+                  else
+                    cmp.complete()
+                  end
+                end, { 'i', 's' }),
                 -- Select the [p]revious item
                 ['<C-p>'] = cmp.mapping.select_prev_item(),
 
@@ -84,7 +92,7 @@ return { -- Autocompletion
                 -- Manually trigger a completion from nvim-cmp.
                 --  Generally you don't need this, because nvim-cmp will display
                 --  completions whenever it has completion options available.
-                ['<C-Space>'] = cmp.mapping.complete {},
+                -- ['<C-Space>'] = cmp.mapping.complete {},
 
                 --  So if you have a snippet that's like:
                 --  function $name($args)
