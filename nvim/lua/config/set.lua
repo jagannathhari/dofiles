@@ -99,3 +99,7 @@ end, { nargs = '*' })
 
 vim.api.nvim_set_keymap('n', '<F6>', '<cmd>Compile<CR>', { noremap = true, silent = true })
 
+
+vim.g.c_syntax_for_h = 1
+
+vim.api.nvim_set_hl(0, "@lsp.type.comment.c", {})

@@ -3,7 +3,7 @@ return {
     -- event = "VimEnter",
     branch = "0.1.x",
 
-    event = { "BufReadPost", "BufNewFile" },
+    -- event = { "BufReadPost", "BufNewFile" },
     dependencies = {
         "nvim-lua/plenary.nvim",
         {
