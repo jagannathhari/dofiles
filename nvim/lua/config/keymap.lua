@@ -36,7 +36,6 @@ vim.keymap.set('n', '<Esc><Esc>', '<cmd>nohlsearch<CR>')
 vim.keymap.set('n', '<leader>cc', '<cmd>cclose<CR>')
 vim.keymap.set('n', '<leader>bd', '<cmd>bdelete<CR>')
 vim.keymap.set('n',"<leader>sd",vim.diagnostic.setqflist)
-vim.api.nvim_set_keymap('n', '<leader><leader>', '<cmd>AssistantToggle <CR>', { noremap = true, silent = true })
 
 -- Function to run grep and open quickfix list
 function GrepAndOpenQuickfix()
@@ -53,4 +52,11 @@ vim.api.nvim_set_keymap('n', '<leader>ss', ':lua GrepAndOpenQuickfix()<CR>', { n
 -- https://github.com/ThePrimeagen/init.lua/blob/249f3b14cc517202c80c6babd0f9ec548351ec71/lua/theprimeagen/remap.lua
 vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "Nzzzv")
+
+-- kakoune like
+vim.keymap.set({"n","v"}, "gi", "_")
+vim.keymap.set({"n","v"}, "gl", "$")
+
+vim.keymap.set({"n","v"}, "gj", "GG")
+vim.keymap.set({"n","v"}, "gk", "gg")
 
