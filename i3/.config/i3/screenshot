@@ -1,0 +1,40 @@
+#!/bin/sh
+
+dir=~/Pictures/screenshot
+[ ! -d "$dir" ] && mkdir "$dir"
+
+timestamp=$(date "+%Y-%m-%d_%H.%M.%S")
+path="$dir/${timestamp}_screenshot.png"
+
+case "$1" in
+    full)
+        if [ "$2" = "save" ]; then
+            maim -u -m 10 "$path"
+            notify-send "Screenshot saved" "$path"
+        elif [ "$2" = "copy" ]; then
+            maim -u -m 10 | xclip -selection clipboard -t image/png
+            notify-send "Screenshot copied to clipboard"
+        fi
+        ;;
+    select)
+        if [ "$2" = "save" ]; then
+            maim -u -m 10 -s "$path"
+            notify-send "Screenshot saved" "$path"
+        elif [ "$2" = "copy" ]; then
+            maim -u -m 10 -s | xclip -selection clipboard -t image/png
+            notify-send "Screenshot copied to clipboard"
+        fi
+        ;;
+    window)
+        if [ "$2" = "save" ]; then
+            maim -u -i "$(xdotool getactivewindow)" "$path"
+            notify-send "Screenshot saved" "$path"
+        elif [ "$2" = "copy" ]; then
+            maim -u -i "$(xdotool getactivewindow)" | xclip -selection clipboard -t image/png
+            notify-send "Screenshot copied to clipboard"
+        fi
+        ;;
+    *)
+        exit 1
+        ;;
+esac

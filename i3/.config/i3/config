@@ -20,7 +20,7 @@ font pango:Anonymous Pro 13
 
 # Start XDG autostart .desktop files using dex. See also
 # https://wiki.archlinux.org/index.php/XDG_Autostart
-exec --no-startup-id dex --autostart --environment i3
+# exec --no-startup-id dex --autostart --environment i3
 # The combination of xss-lock, nm-applet and pactl is a popular choice, so
 # they are included here as an example. Modify as you see fit.
 
@@ -46,9 +46,13 @@ bindsym Mod1+Tab focus right
 
 bindsym $mod+equal exec --no-startup-id sh -c "boomer"
 
-bindsym Print exec --no-startup-id sh -c 'screenshot_path=~/Pictures/screenshot/$(date "+%Y-%m-%d_%H.%M.%S")_screenshot.png && maim -u -m 10 $screenshot_path && notify-send "Full Screen Screenshot taken" $screenshot_path'
-bindsym $mod+Shift+Print exec --no-startup-id sh -c 'screenshot_path=~/Pictures/screenshot/$(date "+%Y-%m-%d_%H.%M.%S")_screenshot.png && maim -u  -m 10 -s $screenshot_path && notify-send "Selection Screenshot taken" $screenshot_path'
-bindsym $mod+Print exec --no-startup-id sh -c 'screenshot_path=~/Pictures/screenshot/$(date "+%Y-%m-%d_%H.%M.%S")_screenshot.png && maim -u  -i $(xdotool getactivewindow) $screenshot_path && notify-send "Active window Screenshot taken" $screenshot_path'
+bindsym Print exec --no-startup-id sh -c "~/.config/i3/screenshot full save"
+bindsym $mod+Shift+Print exec --no-startup-id sh -c "~/.config/i3/screenshot select save"
+bindsym $mod+Print exec --no-startup-id sh -c "~/.config/i3/screenshot window save"
+
+bindsym Mod1+Print exec --no-startup-id sh -c "~/.config/i3/screenshot full copy"
+bindsym Mod1+Shift+Print exec --no-startup-id sh -c "~/.config/i3/screenshot select copy"
+bindsym Mod1+$mod+Print exec --no-startup-id sh -c "~/.config/i3/screenshot window copy"
 
 #clipboard shortcut
 bindsym $mod+c exec --no-startup-id rofi -modi "clipboard:greenclip print" -show clipboard -run-command '{cmd}' -theme "gruvbox-dark" 
@@ -60,7 +64,7 @@ floating_modifier $mod
 tiling_drag modifier titlebar
 
 # start a terminal
-bindsym $mod+Return exec /home/user/.local/bin/st -e /bin/zsh 
+bindsym $mod+Return exec /usr/bin/distrobox-enter  -n debian --  ~/.local/bin/st -e /bin/zsh
 # kill focused window
 bindsym $mod+q kill
 
