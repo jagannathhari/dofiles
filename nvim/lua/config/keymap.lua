@@ -60,3 +60,5 @@ vim.keymap.set({"n","v"}, "gl", "$")
 vim.keymap.set({"n","v"}, "gj", "GG")
 vim.keymap.set({"n","v"}, "gk", "gg")
 
+vim.keymap.set({"n","v"}, "mm", "%")
+vim.keymap.set("n",";f",vim.lsp.buf.format)
