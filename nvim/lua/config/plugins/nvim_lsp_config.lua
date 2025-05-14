@@ -27,8 +27,8 @@ return {
                 -- Jump to the definition of the word under your cursor.
                 --  This is where a variable was first declared, or where a function is defined, etc.
                 --  To jump back, press <C-t>.
-                map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
-                map('<A-.>', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+                -- map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+                map("gd",vim.lsp.buf.definition,'[G]oto [D]efinition')
 
                 -- Find references for the word under your cursor.
                 -- map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
@@ -60,7 +60,6 @@ return {
                 -- WARN: This is not Goto Definition, this is Goto Declaration.
                 --  For example, in C this would take you to the header.
                 map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-
                 if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
                     map('<leader>sh', function()
                         vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
